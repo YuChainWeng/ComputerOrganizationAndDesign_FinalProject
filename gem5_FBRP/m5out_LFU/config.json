@@ -559,7 +559,7 @@
                         "maxStackSize": 67108864, 
                         "ppid": 0, 
                         "type": "Process", 
-                        "cwd": "/home/gem5_FBRP", 
+                        "cwd": "/mnt/h/ComputerOrganizationAndDesign_FinalProject/gem5_FBRP", 
                         "pgid": 100, 
                         "simpoint": 0, 
                         "euid": 100, 
