@@ -1004,7 +1004,8 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
             Request* req = new Request(pkt->getAddr(), blkSize, 0,
                                        Request::wbMasterId);
             if (pkt->req->isSecure()) req->setFlags(Request::SECURE);
-            PacketPtr wt = new Packet(req, MemCmd::WriteReq, blkSize, pkt->id);
+            PacketPtr wt = new Packet(req, MemCmd::WriteClean, blkSize, pkt->id);
+            wt->setWriteThrough();
             wt->allocate();
             std::memcpy(wt->getPtr<uint8_t>(),
                         pkt->getConstPtr<uint8_t>(), blkSize);
@@ -1088,7 +1089,8 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
             Request* req = new Request(pkt->getAddr(), blkSize, 0,
                                        Request::wbMasterId);
             if (pkt->req->isSecure()) req->setFlags(Request::SECURE);
-            PacketPtr wt = new Packet(req, MemCmd::WriteReq, blkSize, pkt->id);
+            PacketPtr wt = new Packet(req, MemCmd::WriteClean, blkSize, pkt->id);
+            wt->setWriteThrough();
             wt->allocate();
             std::memcpy(wt->getPtr<uint8_t>(),
                         pkt->getConstPtr<uint8_t>(), blkSize);
