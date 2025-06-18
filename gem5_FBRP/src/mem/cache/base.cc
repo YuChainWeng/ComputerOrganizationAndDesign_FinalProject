@@ -83,7 +83,6 @@ BaseCache::BaseCache(const BaseCacheParams *p, unsigned blk_size)
       prefetcher(p->prefetcher),
       prefetchOnAccess(p->prefetch_on_access),
       writebackClean(p->writeback_clean),
-      writeThrough(p->write_through),
       tempBlockWriteback(nullptr),
       writebackTempBlockAtomicEvent([this]{ writebackTempBlockAtomic(); },
                                     name(), false,
@@ -98,6 +97,7 @@ BaseCache::BaseCache(const BaseCacheParams *p, unsigned blk_size)
       forwardSnoops(true),
       clusivity(p->clusivity),
       isReadOnly(p->is_read_only),
+      writeThrough(p->write_through),          // NEW
       blocked(0),
       order(0),
       noTargetMSHR(nullptr),
@@ -854,6 +854,23 @@ BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
         // supply data to any snoops that have appended themselves to
         // this cache before knowing the store will fail.
         blk->status |= BlkDirty;
+        /* -------- write-through on write-HIT -------- */
+        if (writeThrough) {
+            blk->status &= ~BlkDirty;                 // keep line clean
+
+            Request *req = new Request(pkt->getAddr(), blkSize, 0,
+                                       Request::wbMasterId);
+            if (pkt->req->isSecure()) req->setFlags(Request::SECURE);
+
+            PacketPtr wt = new Packet(req, MemCmd::WriteClean, blkSize,
+                                      pkt->id);
+            wt->setWriteThrough();                    // legal for WriteClean
+            wt->clearBlockCached();                   // avoid snoop-filter clash
+            wt->allocate();
+            std::memcpy(wt->getPtr<uint8_t>(), blk->data, blkSize);
+
+            writebacks.push_back(wt);                 // send later
+        }
         DPRINTF(CacheVerbose, "%s for %s (write)\n", __func__, pkt->print());
     } else if (pkt->isRead()) {
         if (pkt->isLLSC()) {
@@ -1000,16 +1017,8 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         DPRINTF(Cache, "%s new state is %s\n", __func__, blk->print());
 
         if (writeThrough) {
-            blk->status &= ~BlkDirty;
-            Request* req = new Request(pkt->getAddr(), blkSize, 0,
-                                       Request::wbMasterId);
-            if (pkt->req->isSecure()) req->setFlags(Request::SECURE);
-            PacketPtr wt = new Packet(req, MemCmd::WriteClean, blkSize, pkt->id);
-            wt->setWriteThrough();
-            wt->allocate();
-            std::memcpy(wt->getPtr<uint8_t>(),
-                        pkt->getConstPtr<uint8_t>(), blkSize);
-            writebacks.push_back(wt);
+            pkt->setWriteThrough();   // just flag the ORIGINAL eviction
+            pkt->clearBlockCached();  // tell snoop-filter it is NOT cached above
         }
         incHitCount(pkt);
         // populate the time when the block will be ready to access.
@@ -1083,19 +1092,6 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         incHitCount(pkt);
         satisfyRequest(pkt, blk);
         maintainClusivity(pkt->fromCache(), blk);
-
-        if (writeThrough && pkt->isWrite()) {
-            blk->status &= ~BlkDirty;
-            Request* req = new Request(pkt->getAddr(), blkSize, 0,
-                                       Request::wbMasterId);
-            if (pkt->req->isSecure()) req->setFlags(Request::SECURE);
-            PacketPtr wt = new Packet(req, MemCmd::WriteClean, blkSize, pkt->id);
-            wt->setWriteThrough();
-            wt->allocate();
-            std::memcpy(wt->getPtr<uint8_t>(),
-                        pkt->getConstPtr<uint8_t>(), blkSize);
-            writebacks.push_back(wt);
-        }
 
         return true;
     }

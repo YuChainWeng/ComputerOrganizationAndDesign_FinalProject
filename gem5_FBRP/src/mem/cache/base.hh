@@ -580,9 +580,6 @@ class BaseCache : public MemObject
      */
     const bool writebackClean;
 
-    /** Whether this cache operates in write-through mode. */
-    const bool writeThrough;
-
     /**
      * Writebacks from the tempBlock, resulting on the response path
      * in atomic mode, must happen after the call to recvAtomic has
@@ -805,7 +802,8 @@ class BaseCache : public MemObject
      * any writes, and should never get any dirty data (and hence
      * never have to do any writebacks).
      */
-    const bool isReadOnly;
+    const bool isReadOnly;          ///< cache is read-only (I-cache etc.)
+    const bool writeThrough;        ///< forward every store downstream
 
     /**
      * Bit vector of the blocking reasons for the access path.
