@@ -1000,9 +1000,15 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         DPRINTF(Cache, "%s new state is %s\n", __func__, blk->print());
 
         if (writeThrough) {
-            PacketPtr wt_pkt = writeThroughBlk(blk);
-            writebacks.push_back(wt_pkt);
             blk->status &= ~BlkDirty;
+            Request* req = new Request(pkt->getAddr(), blkSize, 0,
+                                       Request::wbMasterId);
+            if (pkt->req->isSecure()) req->setFlags(Request::SECURE);
+            PacketPtr wt = new Packet(req, MemCmd::WriteReq, blkSize, pkt->id);
+            wt->allocate();
+            std::memcpy(wt->getPtr<uint8_t>(),
+                        pkt->getConstPtr<uint8_t>(), blkSize);
+            writebacks.push_back(wt);
         }
         incHitCount(pkt);
         // populate the time when the block will be ready to access.
@@ -1078,8 +1084,15 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         maintainClusivity(pkt->fromCache(), blk);
 
         if (writeThrough && pkt->isWrite()) {
-            PacketPtr wt_pkt = writeThroughBlk(blk);
-            writebacks.push_back(wt_pkt);
+            blk->status &= ~BlkDirty;
+            Request* req = new Request(pkt->getAddr(), blkSize, 0,
+                                       Request::wbMasterId);
+            if (pkt->req->isSecure()) req->setFlags(Request::SECURE);
+            PacketPtr wt = new Packet(req, MemCmd::WriteReq, blkSize, pkt->id);
+            wt->allocate();
+            std::memcpy(wt->getPtr<uint8_t>(),
+                        pkt->getConstPtr<uint8_t>(), blkSize);
+            writebacks.push_back(wt);
         }
 
         return true;
@@ -1341,25 +1354,6 @@ BaseCache::writecleanBlk(CacheBlk *blk, Request::Flags dest, PacketId id)
 
     return pkt;
 }
-
-PacketPtr
-BaseCache::writeThroughBlk(CacheBlk *blk)
-{
-    Request *req = new Request(regenerateBlkAddr(blk), blkSize, 0,
-                               Request::wbMasterId);
-    if (blk->isSecure()) {
-        req->setFlags(Request::SECURE);
-    }
-    req->taskId(blk->task_id);
-
-    PacketPtr pkt = new Packet(req, MemCmd::WriteClean, blkSize);
-    pkt->allocate();
-    pkt->setDataFromBlock(blk->data, blkSize);
-
-    return pkt;
-}
-
-
 void
 BaseCache::memWriteback()
 {

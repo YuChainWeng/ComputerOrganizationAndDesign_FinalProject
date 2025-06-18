@@ -719,13 +719,6 @@ class BaseCache : public MemObject
     PacketPtr writecleanBlk(CacheBlk *blk, Request::Flags dest, PacketId id);
 
     /**
-     * Create a write-through request for the given block. This is used
-     * when the cache operates in write-through mode and a line is
-     * updated.
-     */
-    PacketPtr writeThroughBlk(CacheBlk *blk);
-
-    /**
      * Write back dirty blocks in the cache using functional accesses.
      */
     virtual void memWriteback() override;
