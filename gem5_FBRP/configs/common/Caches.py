@@ -82,6 +82,7 @@ class L3Cache(Cache):
     tgts_per_mshr    = 12
     size             = '16MB'
     replacement_policy = LRURP()
+    write_through = True
 
 class IOCache(Cache):
     assoc = 8

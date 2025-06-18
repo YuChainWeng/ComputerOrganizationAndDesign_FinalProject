@@ -85,6 +85,10 @@ class BaseCache(MemObject):
     replacement_policy = Param.BaseReplacementPolicy(LRURP(),
         "Replacement policy")
 
+    # When set, all writes are forwarded to the next cache level
+    # immediately and the local copy is kept clean.
+    write_through = Param.Bool(False, "Enable write-through policy")
+
     sequential_access = Param.Bool(False,
         "Whether to access tags and data sequentially")
 

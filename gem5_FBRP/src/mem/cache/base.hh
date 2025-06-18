@@ -580,6 +580,9 @@ class BaseCache : public MemObject
      */
     const bool writebackClean;
 
+    /** Whether this cache operates in write-through mode. */
+    const bool writeThrough;
+
     /**
      * Writebacks from the tempBlock, resulting on the response path
      * in atomic mode, must happen after the call to recvAtomic has
@@ -714,6 +717,13 @@ class BaseCache : public MemObject
      * @return The generated write clean packet.
      */
     PacketPtr writecleanBlk(CacheBlk *blk, Request::Flags dest, PacketId id);
+
+    /**
+     * Create a write-through request for the given block. This is used
+     * when the cache operates in write-through mode and a line is
+     * updated.
+     */
+    PacketPtr writeThroughBlk(CacheBlk *blk);
 
     /**
      * Write back dirty blocks in the cache using functional accesses.

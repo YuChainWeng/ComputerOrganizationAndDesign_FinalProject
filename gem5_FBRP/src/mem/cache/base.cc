@@ -83,6 +83,7 @@ BaseCache::BaseCache(const BaseCacheParams *p, unsigned blk_size)
       prefetcher(p->prefetcher),
       prefetchOnAccess(p->prefetch_on_access),
       writebackClean(p->writeback_clean),
+      writeThrough(p->write_through),
       tempBlockWriteback(nullptr),
       writebackTempBlockAtomicEvent([this]{ writebackTempBlockAtomic(); },
                                     name(), false,
@@ -997,6 +998,12 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         assert(!pkt->needsResponse());
         pkt->writeDataToBlock(blk->data, blkSize);
         DPRINTF(Cache, "%s new state is %s\n", __func__, blk->print());
+
+        if (writeThrough) {
+            PacketPtr wt_pkt = writeThroughBlk(blk);
+            writebacks.push_back(wt_pkt);
+            blk->status &= ~BlkDirty;
+        }
         incHitCount(pkt);
         // populate the time when the block will be ready to access.
         blk->whenReady = clockEdge(fillLatency) + pkt->headerDelay +
@@ -1069,6 +1076,11 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         incHitCount(pkt);
         satisfyRequest(pkt, blk);
         maintainClusivity(pkt->fromCache(), blk);
+
+        if (writeThrough && pkt->isWrite()) {
+            PacketPtr wt_pkt = writeThroughBlk(blk);
+            writebacks.push_back(wt_pkt);
+        }
 
         return true;
     }
@@ -1324,6 +1336,23 @@ BaseCache::writecleanBlk(CacheBlk *blk, Request::Flags dest, PacketId id)
     // make sure the block is not marked dirty
     blk->status &= ~BlkDirty;
 
+    pkt->allocate();
+    pkt->setDataFromBlock(blk->data, blkSize);
+
+    return pkt;
+}
+
+PacketPtr
+BaseCache::writeThroughBlk(CacheBlk *blk)
+{
+    Request *req = new Request(regenerateBlkAddr(blk), blkSize, 0,
+                               Request::wbMasterId);
+    if (blk->isSecure()) {
+        req->setFlags(Request::SECURE);
+    }
+    req->taskId(blk->task_id);
+
+    PacketPtr pkt = new Packet(req, MemCmd::WriteClean, blkSize);
     pkt->allocate();
     pkt->setDataFromBlock(blk->data, blkSize);
 
