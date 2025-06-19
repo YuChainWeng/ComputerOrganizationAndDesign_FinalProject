@@ -990,7 +990,6 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
             // TODO: the coherent cache can assert(!blk->isDirty());
             blk->status |= BlkDirty;
             tags->markDirty(blk);
-            tags->markDirty(blk);
         }
         // if the packet does not have sharers, it is passing
         // writable, and we got the writeback in Modified or Exclusive
@@ -1291,7 +1290,6 @@ BaseCache::writebackBlk(CacheBlk *blk)
 
     // make sure the block is not marked dirty
     blk->status &= ~BlkDirty;
-    tags->clearDirty(blk);
     tags->clearDirty(blk);
 
     pkt->allocate();
