@@ -550,7 +550,7 @@
                         "pid": 100, 
                         "kvmInSE": false, 
                         "cxx_class": "Process", 
-                        "executable": "quicksort", 
+                        "executable": "multiply", 
                         "drivers": [], 
                         "system": "system", 
                         "gid": 100, 
@@ -567,7 +567,7 @@
                         "path": "system.cpu.workload", 
                         "name": "workload", 
                         "cmd": [
-                            "quicksort"
+                            "multiply"
                         ], 
                         "errout": "cerr", 
                         "useArchPT": false, 
@@ -769,13 +769,11 @@
         }, 
         "l3": {
             "replacement_policy": {
-                "name": "replacement_policy", 
-                "max_counter": 255, 
-                "aging_shift": 1, 
                 "eventq_index": 0, 
-                "cxx_class": "FreqRP", 
                 "path": "system.l3.replacement_policy", 
-                "type": "FreqRP"
+                "type": "LRURP", 
+                "name": "replacement_policy", 
+                "cxx_class": "LRURP"
             }, 
             "cpu_side": {
                 "peer": "system.tol3bus.master[0]", 
@@ -787,7 +785,7 @@
             "write_buffers": 8, 
             "response_latency": 30, 
             "cxx_class": "Cache", 
-            "size": 524288, 
+            "size": 1048576, 
             "type": "Cache", 
             "clk_domain": "system.cpu_clk_domain", 
             "max_miss_count": 0, 
@@ -802,7 +800,7 @@
             "writeback_clean": false, 
             "p_state_clk_gate_min": 1000, 
             "tags": {
-                "size": 524288, 
+                "size": 1048576, 
                 "tag_latency": 30, 
                 "replacement_policy": "system.l3.replacement_policy", 
                 "name": "tags", 
@@ -813,7 +811,7 @@
                 "clk_domain": "system.cpu_clk_domain", 
                 "power_model": [], 
                 "sequential_access": false, 
-                "assoc": 2, 
+                "assoc": 4, 
                 "warmup_percentage": 0, 
                 "cxx_class": "BaseSetAssoc", 
                 "p_state_clk_gate_max": 1000000000000, 
@@ -837,7 +835,7 @@
             "name": "l3", 
             "p_state_clk_gate_bins": 20, 
             "sequential_access": false, 
-            "assoc": 2
+            "assoc": 4
         }, 
         "cpu_voltage_domain": {
             "name": "cpu_voltage_domain", 

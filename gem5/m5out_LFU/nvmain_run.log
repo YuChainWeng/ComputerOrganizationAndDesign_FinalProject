@@ -1,11 +1,9 @@
-/mnt/h/ComputerOrganizationAndDesign_FinalProject/gem5_FBRP/configs/common/CacheConfig.py:58: SyntaxWarning: import * only allowed at module level
-  def config_cache(options, system):
 gem5 Simulator System.  http://gem5.org
 gem5 is copyrighted software; use the --copyright option for details.
 
-gem5 compiled Jun 18 2025 14:07:02
-gem5 started Jun 18 2025 14:08:32
-gem5 executing on OnealComputer, pid 26781
+gem5 compiled Jun 18 2025 23:40:05
+gem5 started Jun 19 2025 08:37:43
+gem5 executing on OnealComputer, pid 834
 command line: build/X86/gem5.opt -d m5out_LFU configs/example/se.py -c quicksort --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache --l2_size=32kB --l2_assoc=2 --l3_size=512kB --l3_assoc=2 --l3_repl=FreqRP --mem-type=NVMainMemory --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
 
 Global frequency set at 1000000000000 ticks per second
