@@ -39,6 +39,7 @@
 #define __MEM_CACHE_REPLACEMENT_POLICIES_CFAR_RP_HH__
 
 #include "mem/cache/replacement_policies/base.hh"
+#include "mem/cache/replacement_policies/lru_rp.hh"
 
 struct CFARRPParams;
 
@@ -46,12 +47,12 @@ class CFARRP : public LRURP
 {
   protected:
     /** Per-block replacement metadata. */
-    struct CFARReplData : LRUReplData
+    struct CFARReplData : LRURP::LRUReplData
     {
         /** 0 = clean-friendly, 1 = dirty-penalised */
         bool priority;
 
-        CFARReplData() : LRUReplData(), priority(false) {}
+        CFARReplData() : LRURP::LRUReplData(), priority(false) {}
     };
 
   public:
