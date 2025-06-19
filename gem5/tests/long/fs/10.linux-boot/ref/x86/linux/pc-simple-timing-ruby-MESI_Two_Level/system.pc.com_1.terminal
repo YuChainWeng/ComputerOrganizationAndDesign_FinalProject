@@ -137,6 +137,6 @@ input: PS/2 Generic Mouse as /class/input/input1
 EXT2-fs warning: mounting unchecked fs, running e2fsck is recommended
 VFS: Mounted root (ext2 filesystem).
 Freeing unused kernel memory: 248k freed
-INIT: version 2.86 booting
+INIT: version 2.86 booting
 mounting filesystems...
 loading script...
