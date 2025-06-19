@@ -304,6 +304,14 @@ class BaseSetAssoc : public BaseTags
         return false;
     }
 
+    void markDirty(CacheBlk* blk) override {
+        replacementPolicy->markDirty(blk->replacementData);
+    }
+
+    void clearDirty(CacheBlk* blk) override {
+        replacementPolicy->clearDirty(blk->replacementData);
+    }
+
   private:
     /**
      * Calculate the set index from the address.

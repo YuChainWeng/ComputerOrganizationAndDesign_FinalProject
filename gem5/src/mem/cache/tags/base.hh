@@ -309,6 +309,12 @@ class BaseTags : public ClockedObject
      */
     virtual bool anyBlk(std::function<bool(CacheBlk &)> visitor) = 0;
 
+    /** Inform replacement policy that a block became dirty. */
+    virtual void markDirty(CacheBlk* blk) {}
+
+    /** Inform replacement policy that a block was cleaned. */
+    virtual void clearDirty(CacheBlk* blk) {}
+
   private:
     /**
      * Update the reference stats using data from the input block

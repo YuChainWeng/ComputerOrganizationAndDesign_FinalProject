@@ -48,10 +48,11 @@ from m5.objects import *
 from Caches import *
 
 _repl_map = {
-    'LRURP':   LRURP, 
-    'LFURP': LFURP, 
-    'FreqRP':   FreqRP, 
-    'BaseReplacementPolicy':   LRURP 
+    'LRURP':   LRURP,
+    'LFURP': LFURP,
+    'FreqRP':   FreqRP,
+    'CFARRP':  CFARRP,
+    'BaseReplacementPolicy':   LRURP
 }
 
 

@@ -109,6 +109,20 @@ class BaseReplacementPolicy : public SimObject
                                                 replacement_data) const = 0;
 
     /**
+     * Inform the policy that the block became dirty.
+     * Default implementation does nothing.
+     */
+    virtual void markDirty(const std::shared_ptr<ReplacementData>&)
+                                                    const {}
+
+    /**
+     * Inform the policy that the block was cleaned.
+     * Default implementation does nothing.
+     */
+    virtual void clearDirty(const std::shared_ptr<ReplacementData>&)
+                                                    const {}
+
+    /**
      * Find replacement victim among candidates.
      *
      * @param candidates Replacement candidates, selected by indexing policy.

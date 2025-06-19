@@ -733,6 +733,7 @@ BaseCache::cmpAndSwap(CacheBlk *blk, PacketPtr pkt)
     if (overwrite_mem) {
         std::memcpy(blk_data, &overwrite_val, pkt->getSize());
         blk->status |= BlkDirty;
+        tags->markDirty(blk);
     }
 }
 
@@ -853,6 +854,7 @@ BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
         // supply data to any snoops that have appended themselves to
         // this cache before knowing the store will fail.
         blk->status |= BlkDirty;
+        tags->markDirty(blk);
         DPRINTF(CacheVerbose, "%s for %s (write)\n", __func__, pkt->print());
     } else if (pkt->isRead()) {
         if (pkt->isLLSC()) {
@@ -872,6 +874,7 @@ BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
             // that the data it already has is in fact dirty
             pkt->setCacheResponding();
             blk->status &= ~BlkDirty;
+            tags->clearDirty(blk);
         }
     } else {
         assert(pkt->isInvalidate());
@@ -986,6 +989,7 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         if (pkt->cmd == MemCmd::WritebackDirty) {
             // TODO: the coherent cache can assert(!blk->isDirty());
             blk->status |= BlkDirty;
+            tags->markDirty(blk);
         }
         // if the packet does not have sharers, it is passing
         // writable, and we got the writeback in Modified or Exclusive
@@ -1050,6 +1054,7 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         // TODO: the coherent cache can assert(!blk->isDirty());
         if (!pkt->writeThrough()) {
             blk->status |= BlkDirty;
+            tags->markDirty(blk);
         }
         // nothing else to do; writeback doesn't expect response
         assert(!pkt->needsResponse());
@@ -1285,6 +1290,7 @@ BaseCache::writebackBlk(CacheBlk *blk)
 
     // make sure the block is not marked dirty
     blk->status &= ~BlkDirty;
+    tags->clearDirty(blk);
 
     pkt->allocate();
     pkt->setDataFromBlock(blk->data, blkSize);
@@ -1368,6 +1374,7 @@ BaseCache::writebackVisitor(CacheBlk &blk)
         memSidePort.sendFunctional(&packet);
 
         blk.status &= ~BlkDirty;
+        tags->clearDirty(&blk);
     }
 }
 

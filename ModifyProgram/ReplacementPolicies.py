@@ -96,3 +96,8 @@ class FreqRP(BaseReplacementPolicy):
     cxx_header  = 'mem/cache/replacement_policies/freq_rp.hh'
     max_counter = Param.Int(255, "")
     aging_shift = Param.Int(1,   "")
+
+class CFARRP(LRURP):
+    type = 'CFARRP'
+    cxx_class = 'CFARRP'
+    cxx_header = 'mem/cache/replacement_policies/cfar_rp.hh'

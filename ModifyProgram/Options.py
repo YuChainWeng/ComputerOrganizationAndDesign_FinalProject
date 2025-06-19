@@ -112,7 +112,7 @@ def addNoISAOptions(parser):
     parser.add_option("--cacheline_size", type="int", default=64)
     parser.add_option("--l3cache", action="store_true",
                   help="Enable L3 last-level cache")
-    parser.add_option("--l3_repl",type="choice",choices=["LRURP", "LFURP","BaseReplacementPolicy","FreqRP"],default="BaseReplacementPolicy",help="Select the L3 cache replacement policy")
+    parser.add_option("--l3_repl",type="choice",choices=["LRURP", "LFURP","BaseReplacementPolicy","FreqRP","CFARRP"],default="BaseReplacementPolicy",help="Select the L3 cache replacement policy")
 
     # Enable Ruby
     parser.add_option("--ruby", action="store_true")
