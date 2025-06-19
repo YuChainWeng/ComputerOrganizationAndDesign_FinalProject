@@ -31,6 +31,7 @@
 Import('*')
 
 SimObject('ReplacementPolicies.py')
+SimObject('CFARRP.py')
 
 Source('bip_rp.cc')
 Source('brrip_rp.cc')
